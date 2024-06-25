@@ -1,69 +1,100 @@
 <template>
   <q-page padding>
-    <q-card>
-      <q-card-section>
-        <q-card-title>
-          Novo cliente
-          <q-btn
-            class="q-ml-md"
-            color="primary"
-            icon="add"
-            label="Adicionar"
-            @click="adicionarCliente"
-          />
-        </q-card-title>
-      </q-card-section>
-    </q-card>
-
-    <q-card class="q-mt-md">
-      <q-card-section>
-        <q-table
-          :rows="clientes"
-          row-key="id"
-          class="shadow-0"
-          flat
-        />
-      </q-card-section>
-    </q-card>
+    <q-btn color="primary" label="Adicionar Cliente" @click="mostrarDialogNovoCliente = true" />
+    
+    <!-- Diálogo para Novo Cliente -->
+    <q-dialog v-model="mostrarDialogNovoCliente" persistent>
+      <q-card>
+        <q-card-section>
+          <q-input v-model="novoCliente.nome" label="Nome" dense />
+          <q-input v-model="novoCliente.email" label="Email" dense />
+          <q-input v-model="novoCliente.telefone" label="Telefone" dense />
+        </q-card-section>
+        
+        <q-card-actions align="right">
+          <q-btn label="Cancelar" color="secondary" @click="cancelarNovoCliente" />
+          <q-btn label="Adicionar" color="primary" @click="adicionarNovoCliente" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    
+    <!-- Tabela de Clientes -->
+    <q-table
+      :rows="clientes"
+      
+      row-key="id"
+      class="shadow-0"
+      flat
+    />
   </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { QBtn, QDialog, QCard, QCardSection, QCardActions, QInput, QTable } from 'quasar';
 
 interface Cliente {
   id: number;
   nome: string;
-  telefone: string;
   email: string;
+  telefone: string;
 }
 
 export default defineComponent({
   name: 'UserPage',
-
-  data() {
-    return {
-      clientes: [
-        { id: 1, nome: 'Cliente 1', telefone: '123456789', email: 'cliente1@example.com' },
-        { id: 2, nome: 'Cliente 2', telefone: '987654321', email: 'cliente2@example.com' },
-      ] as Cliente[],
-      columns: [
-        { name: 'nome', label: 'Nome', align: 'left', field: 'nome' },
-        { name: 'telefone', label: 'Telefone', align: 'left', field: 'telefone' },
-        { name: 'email', label: 'Email', align: 'left', field: 'email' },
-      ],
-    };
+  components: {
+    QBtn,
+    QDialog,
+    QCard,
+    QCardSection,
+    QCardActions,
+    QInput,
+    QTable,
   },
+  setup() {
+    const clientes = ref<Cliente[]>([
+      { id: 1, nome: 'Cliente A', email: 'clienteA@email.com', telefone: '(00) 0000-0000' },
+      { id: 2, nome: 'Cliente B', email: 'clienteB@email.com', telefone: '(00) 0000-0000' },
+      { id: 3, nome: 'Cliente C', email: 'clienteC@email.com', telefone: '(00) 0000-0000' },
+    ]);
 
-  methods: {
-    adicionarCliente() {
-      // Implementar lógica para adicionar um novo cliente
-      console.log('Adicionar novo cliente');
-    },
+    const columns = [
+      { name: 'nome', label: 'Nome', align: 'left', field: 'nome' },
+      { name: 'email', label: 'Email', align: 'left', field: 'email' },
+      { name: 'telefone', label: 'Telefone', align: 'left', field: 'telefone' },
+    ];
+
+    const mostrarDialogNovoCliente = ref(false);
+    const novoCliente = ref<Cliente>({ id: 0, nome: '', email: '', telefone: '' });
+
+    const adicionarNovoCliente = () => {
+      if (novoCliente.value.nome && novoCliente.value.email && novoCliente.value.telefone) {
+        clientes.value.push({
+          id: clientes.value.length + 1,
+          nome: novoCliente.value.nome,
+          email: novoCliente.value.email,
+          telefone: novoCliente.value.telefone,
+        });
+        cancelarNovoCliente();
+      }
+    };
+
+    const cancelarNovoCliente = () => {
+      mostrarDialogNovoCliente.value = false;
+      novoCliente.value = { id: 0, nome: '', email: '', telefone: '' };
+    };
+
+    return {
+      clientes,
+      columns,
+      mostrarDialogNovoCliente,
+      novoCliente,
+      adicionarNovoCliente,
+      cancelarNovoCliente,
+    };
   },
 });
 </script>
 
 <style scoped>
-/* Estilos opcionais podem ser adicionados aqui */
 </style>
