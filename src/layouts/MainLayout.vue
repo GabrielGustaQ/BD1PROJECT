@@ -85,7 +85,25 @@ const linksList: EssentialLinkProps[] = [
     caption: 'chat.quasar.dev',
     icon: 'local_activity',
     link: '/PromocoesPage'
-  }
+  },
+  {
+    title: 'Login',
+    caption: 'chat.quasar.dev',
+    icon: '',
+    link: '/LoginPage'
+  },
+  {
+    title: 'Dashboard',
+    caption: 'chat.quasar.dev',
+    icon: '',
+    link: '/DashboardPage'
+  },
+  {
+    title: 'AdministradorPage',
+    caption: 'chat.quasar.dev',
+    icon: '',
+    link: '/AdminPage'
+  },
 ];
 
 // Estado do drawer

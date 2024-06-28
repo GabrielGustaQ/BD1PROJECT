@@ -25,6 +25,18 @@ const routes: RouteRecordRaw[] = [
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },
+  {
+    path: '/LoginPage',
+    component: () => import('pages/Login.vue'),
+  },
+  {
+    path: '/AdminPage',
+    component: () => import('pages/Administrador.vue'),
+  },
+  {
+    path: '/DashboardPage',
+    component: () => import('pages/Dashboard.vue'),
+  },
 ];
 
 export default routes;
