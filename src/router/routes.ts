@@ -27,15 +27,18 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/LoginPage',
-    component: () => import('pages/Login.vue'),
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () =>import('pages/Login.vue')}],
   },
   {
     path: '/AdminPage',
-    component: () => import('pages/Administrador.vue'),
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () =>  import('pages/Administrador.vue')}],
   },
   {
     path: '/DashboardPage',
-    component: () => import('pages/Dashboard.vue'),
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('pages/Dashboard.vue')}],
   },
 ];
 
