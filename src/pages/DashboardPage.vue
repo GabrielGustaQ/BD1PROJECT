@@ -1,9 +1,5 @@
 <template>
   <q-page class="dashboard-page">
-    <div class="header">
-      <div class="title">SISTEMA DE GERENCIAMENTO DO SALÃO DE BELEZA</div>
-      <q-btn icon="account_circle" label="Admin" flat />
-    </div>
     <div class="dashboard-stats">
       <q-card class="stat-card">
         <q-card-section>
@@ -40,7 +36,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { QPage, QBtn, QCard, QCardSection } from 'quasar';
+import { QPage, QCard, QCardSection } from 'quasar';
 import ApexCharts from 'vue3-apexcharts';
 
 interface ChartOptions {
@@ -121,7 +117,7 @@ interface ChartOptions {
 
 export default defineComponent({
   name: 'DashboardPage',
-  components: { QPage, QBtn, QCard, QCardSection, apexchart: ApexCharts },
+  components: { QPage, QCard, QCardSection, apexchart: ApexCharts },
   setup() {
     const chartOptions: ChartOptions = {
       chart: {
@@ -219,12 +215,14 @@ export default defineComponent({
 .dashboard-page {
   padding: 20px;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
+
 .title {
   font-size: 1.2rem;
   font-weight: bold;
@@ -233,41 +231,48 @@ export default defineComponent({
   padding: 10px 20px;
   border-radius: 8px;
 }
+
 .dashboard-stats {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
 }
+
 .stat-card {
   width: 30%;
   text-align: center;
   background: linear-gradient(145deg, #f5f7fa, #e4e8ee);
   box-shadow: 5px 5px 15px #d1d9e6,
-              -5px -5px 15px #ffffff;
+    -5px -5px 15px #ffffff;
   border-radius: 10px;
 }
+
 .stat-value {
   font-size: 2rem;
   font-weight: bold;
   color: #333;
 }
+
 .stat-label {
   font-size: 1rem;
   color: #666;
 }
+
 .chart-card {
   width: 100%;
   text-align: center;
   background: linear-gradient(145deg, #f5f7fa, #e4e8ee);
   box-shadow: 5px 5px 15px #d1d9e6,
-              -5px -5px 15px #ffffff;
+    -5px -5px 15px #ffffff;
   border-radius: 10px;
 }
+
 .chart-label {
   margin-top: 20px;
   font-size: 1rem;
   color: #666;
 }
+
 .footer {
   text-align: center;
   margin-top: 20px;

@@ -30,7 +30,7 @@ interface Admin {
 interface Column {
   name: string;
   label: string;
-  field: string | ((row: Admin) => any);
+  field: string | ((row: Admin) => string);
   align: 'left' | 'right' | 'center';
   required?: boolean;
   sortable?: boolean;
@@ -55,7 +55,7 @@ export default defineComponent({
       { name: 'name', label: 'Nome Completo', align: 'left', field: 'name' },
       { name: 'email', label: 'Email', align: 'left', field: 'email' },
       { name: 'status', label: 'Situação', align: 'left', field: 'status' },
-      { name: 'actions', label: 'Ações', align: 'center', field: (row: Admin) => row.id },
+      { name: 'actions', label: 'Ações', align: 'center', field: '' },
     ];
 
     const addUser = () => {
@@ -64,6 +64,7 @@ export default defineComponent({
 
     const editUser = (id: number) => {
       // Implementar lógica para editar usuário
+      console.log(id)
     };
 
     const deleteUser = (id: number) => {
@@ -80,21 +81,23 @@ export default defineComponent({
 .admin-page {
   padding: 20px;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
+
 .title {
   font-size: 1.5rem;
 }
+
 .search-input {
   margin-bottom: 20px;
 }
-.admin-table {
-  .q-btn {
-    margin-right: 10px;
-  }
+
+.q-btn {
+  margin-right: 10px;
 }
 </style>

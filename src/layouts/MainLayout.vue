@@ -1,41 +1,24 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="bg-pink-6">
       <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-        
+        <q-btn flat dense round icon="menu" aria-label="Menu" @click="toggleLeftDrawer" />
+
         <q-toolbar-title @click="goToHome" style="cursor: pointer;">
-          Corte Rápido 
-          <span class="material-icons">
-            content_cut
-          </span>
+          Sistema de Gerenciamento para Salões de Beleza
         </q-toolbar-title>
+        <q-btn icon="account_circle" label="Admin" flat />
+
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
         <q-item-label header>
-          Menu Agendamentos
+          SGS
         </q-item-label>
 
-        <q-item
-          v-for="link in linksList"
-          :key="link.title"
-          clickable
-          @click="goTo(link.link)"
-        >
+        <q-item v-for="link in linksList" :key="link.title" clickable @click="goTo(link.link)">
           <q-item-section avatar>
             <q-icon :name="link.icon" />
           </q-item-section>
@@ -71,38 +54,37 @@ interface EssentialLinkProps {
 
 const linksList: EssentialLinkProps[] = [
   {
+    title: 'Dashboard',
+    caption: 'chat.quasar.dev',
+    icon: 'dashboard',
+    link: '/dashboard'
+  },
+  {
+    title: 'Administradores',
+    caption: 'chat.quasar.dev',
+    icon: 'account_circle',
+    link: '/AdminPage'
+  },
+  {
     title: 'Clientes',
     icon: 'account_circle',
     link: '/UserPage'
   },
   {
-    title: 'Agenda',
+    title: 'Funcionários',
+    icon: 'account_circle',
+    link: '/UserPage'
+  },
+  {
+    title: 'Agendamentos',
     icon: 'calendar_month',
     link: '/AgendaPage'
   },
   {
-    title: 'Promoções',
+    title: 'Serviços',
     caption: 'chat.quasar.dev',
     icon: 'local_activity',
     link: '/PromocoesPage'
-  },
-  {
-    title: 'Login',
-    caption: 'chat.quasar.dev',
-    icon: '',
-    link: '/LoginPage'
-  },
-  {
-    title: 'Dashboard',
-    caption: 'chat.quasar.dev',
-    icon: '',
-    link: '/DashboardPage'
-  },
-  {
-    title: 'AdministradorPage',
-    caption: 'chat.quasar.dev',
-    icon: '',
-    link: '/AdminPage'
   },
 ];
 

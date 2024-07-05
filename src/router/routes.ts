@@ -3,13 +3,12 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    component: () => import('src/pages/LoginPage.vue'),
   },
   {
-    path: '/UserPage',
+    path: '/dashboard',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/User.vue') }],
+    children: [{ path: '', component: () => import('src/pages/DashboardPage.vue') }],
   },
   {
     path: '/AgendaPage',
@@ -26,19 +25,9 @@ const routes: RouteRecordRaw[] = [
     component: () => import('pages/ErrorNotFound.vue'),
   },
   {
-    path: '/LoginPage',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () =>import('pages/Login.vue')}],
-  },
-  {
     path: '/AdminPage',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () =>  import('pages/Administrador.vue')}],
-  },
-  {
-    path: '/DashboardPage',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Dashboard.vue')}],
+    children: [{ path: '', component: () => import('src/pages/AdministradorTeste.vue') }],
   },
 ];
 
