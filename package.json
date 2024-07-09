@@ -17,6 +17,7 @@
     "@vueuse/components": "^10.11.0",
     "@vueuse/core": "^10.11.0",
     "apexcharts": "^3.49.2",
+    "axios": "^1.7.2",
     "quasar": "^2.16.0",
     "vue": "^3.4.18",
     "vue-router": "^4.0.12",

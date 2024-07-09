@@ -67,12 +67,12 @@ const linksList: EssentialLinkProps[] = [
   },
   {
     title: 'Clientes',
-    icon: 'account_circle',
+    icon: 'group',
     link: '/UserPage'
   },
   {
     title: 'Funcionários',
-    icon: 'account_circle',
+    icon: 'supervised_user_circle',
     link: '/UserPage'
   },
   {
