@@ -32,7 +32,7 @@ export default defineComponent({
 
     const login = async () => {
       // Lógica de autenticação
-      const data = (await api.get('/administradores')).data;
+      const data = (await api.get('/usuario')).data;
 
       console.log(data[0])
       if (data[0].email === email.value && data[0].password === password.value) {
