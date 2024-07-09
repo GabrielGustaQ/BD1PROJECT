@@ -6,7 +6,7 @@
     <div class="agendamento-lista">
       <q-card flat bordered v-for="agendamento in agendamentos" :key="agendamento.id" class="agendamento-card q-mb-md">
         <q-card-section>
-          <div class="text-h6">{{ agendamento.cliente }}</div>
+          <div class="text-h6">{{ getClienteNome(agendamento.clienteId) }}</div>
           <div>{{ agendamento.data }} {{ agendamento.hora }}</div>
           <div v-if="agendamento.remarcado" class="remarcado-tag">Remarcado</div>
         </q-card-section>
@@ -25,7 +25,7 @@
     <div class="agendamento-lista">
       <q-card flat bordered v-for="agendamento in agendamentosConcluidos" :key="agendamento.id" class="agendamento-card q-mb-md">
         <q-card-section>
-          <div class="text-h6">{{ agendamento.cliente }}</div>
+          <div class="text-h6">{{ getClienteNome(agendamento.clienteId) }}</div>
           <div>{{ agendamento.data }} {{ agendamento.hora }}</div>
         </q-card-section>
 
@@ -59,6 +59,8 @@
           <q-select
             v-model="clienteSelecionado"
             :options="clientes"
+            option-label="nome"
+            option-value="id"
             label="Cliente"
             dense
             emit-value
@@ -93,7 +95,7 @@ import {
 
 interface Agendamento {
   id: number;
-  cliente: string;
+  clienteId: number;
   data: string;
   hora: string;
   remarcado?: boolean;
@@ -101,6 +103,7 @@ interface Agendamento {
 }
 
 interface Cliente {
+  id: number;
   nome: string;
   // adicione outros campos conforme necessário
 }
@@ -120,10 +123,10 @@ export default defineComponent({
   setup() {
     const agendamentos = ref<Agendamento[]>([]);
     const agendamentosConcluidos = ref<Agendamento[]>([]);
-    const clientes = ref<string[]>([]);
+    const clientes = ref<Cliente[]>([]);
     const mostrarDialogNovoAgendamento = ref(false);
     const mostrarDialogRemarcar = ref(false);
-    const clienteSelecionado = ref<string | null>(null);
+    const clienteSelecionado = ref<number | null>(null);
     const dataSelecionada = ref<string | null>(null);
     const horaSelecionada = ref<string | null>(null);
     const novaDataSelecionada = ref<string | null>(null);
@@ -145,7 +148,7 @@ export default defineComponent({
     const fetchClientes = async () => {
       try {
         const response = await axios.get(`${apiBaseUrl}/clientes`);
-        clientes.value = response.data.map((cliente: Cliente) => cliente.nome);
+        clientes.value = response.data;
       } catch (error) {
         console.error('Erro ao buscar clientes:', error);
       }
@@ -160,7 +163,7 @@ export default defineComponent({
       if (clienteSelecionado.value && dataSelecionada.value && horaSelecionada.value) {
         try {
           const response = await axios.post(`${apiBaseUrl}/agendamentos`, {
-            cliente: clienteSelecionado.value,
+            clienteId: clienteSelecionado.value,
             data: dataSelecionada.value,
             hora: horaSelecionada.value,
           });
@@ -230,6 +233,11 @@ export default defineComponent({
       }
     };
 
+    const getClienteNome = (clienteId: number) => {
+      const cliente = clientes.value.find(c => c.id === clienteId);
+      return cliente ? cliente.nome : 'Desconhecido';
+    };
+
     return {
       agendamentos,
       agendamentosConcluidos,
@@ -248,12 +256,11 @@ export default defineComponent({
       remarcarAgendamento,
       concluirAgendamento,
       excluirAgendamento,
+      getClienteNome,
     };
   },
 });
 </script>
-
-
 
 <style scoped>
 .agendamento-titulo {
