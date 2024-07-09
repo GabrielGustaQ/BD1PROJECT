@@ -4,7 +4,7 @@
     <hr class="linha-separadora" />
 
     <div class="agendamento-lista">
-      <q-card flat bordered v-for="agendamento in agendamentos" :key="agendamento.id" class="agendamento-card q-mb-md">
+      <q-card flat bordered v-for="agendamento in agendamentosPendentes" :key="agendamento.id" class="agendamento-card q-mb-md">
         <q-card-section>
           <div class="text-h6">{{ getClienteNome(agendamento.clienteId) }}</div>
           <div>{{ agendamento.data }} {{ agendamento.hora }}</div>
@@ -122,6 +122,7 @@ export default defineComponent({
   },
   setup() {
     const agendamentos = ref<Agendamento[]>([]);
+    const agendamentosPendentes = ref<Agendamento[]>([]);
     const agendamentosConcluidos = ref<Agendamento[]>([]);
     const clientes = ref<Cliente[]>([]);
     const mostrarDialogNovoAgendamento = ref(false);
@@ -138,8 +139,9 @@ export default defineComponent({
     const fetchAgendamentos = async () => {
       try {
         const response = await axios.get(`${apiBaseUrl}/agendamentos`);
-        agendamentos.value = response.data.filter((agendamento: Agendamento) => !agendamento.concluido);
-        agendamentosConcluidos.value = response.data.filter((agendamento: Agendamento) => agendamento.concluido);
+        agendamentos.value = response.data;
+        agendamentosPendentes.value = agendamentos.value.filter((agendamento: Agendamento) => !agendamento.concluido);
+        agendamentosConcluidos.value = agendamentos.value.filter((agendamento: Agendamento) => agendamento.concluido);
       } catch (error) {
         console.error('Erro ao buscar agendamentos:', error);
       }
@@ -168,6 +170,7 @@ export default defineComponent({
             hora: horaSelecionada.value,
           });
           agendamentos.value.push(response.data);
+          agendamentosPendentes.value.push(response.data);
           cancelarNovoAgendamento();
         } catch (error) {
           console.error('Erro ao adicionar agendamento:', error);
@@ -217,7 +220,8 @@ export default defineComponent({
     const concluirAgendamento = async (agendamento: Agendamento) => {
       try {
         await axios.put(`${apiBaseUrl}/agendamentos/${agendamento.id}`, { concluido: true });
-        agendamentos.value = agendamentos.value.filter(a => a.id !== agendamento.id);
+        agendamento.concluido = true;
+        agendamentosPendentes.value = agendamentosPendentes.value.filter(a => a.id !== agendamento.id);
         agendamentosConcluidos.value.push(agendamento);
       } catch (error) {
         console.error('Erro ao concluir agendamento:', error);
@@ -227,7 +231,8 @@ export default defineComponent({
     const excluirAgendamento = async (agendamentoId: number) => {
       try {
         await axios.delete(`${apiBaseUrl}/agendamentos/${agendamentoId}`);
-        agendamentos.value = agendamentos.value.filter(a => a.id !== agendamentoId);
+        agendamentosPendentes.value = agendamentosPendentes.value.filter(a => a.id !== agendamentoId);
+        agendamentosConcluidos.value = agendamentosConcluidos.value.filter(a => a.id !== agendamentoId);
       } catch (error) {
         console.error('Erro ao excluir agendamento:', error);
       }
@@ -240,6 +245,7 @@ export default defineComponent({
 
     return {
       agendamentos,
+      agendamentosPendentes,
       agendamentosConcluidos,
       clientes,
       mostrarDialogNovoAgendamento,
