@@ -1,9 +1,12 @@
 <template>
   <q-page padding>
+    <!-- Título para agendamentos pendentes -->
     <div class="agendamento-titulo">Agendados</div>
     <hr class="linha-separadora" />
 
+    <!-- Lista de agendamentos pendentes -->
     <div class="agendamento-lista">
+      <!-- Itera sobre a lista de agendamentos pendentes -->
       <q-card flat bordered v-for="agendamento in agendamentosPendentes" :key="agendamento.id" class="agendamento-card q-mb-md">
         <q-card-section>
           <div class="text-h6">{{ getClienteNome(agendamento.clienteId) }}</div>
@@ -12,17 +15,23 @@
         </q-card-section>
 
         <q-card-actions>
+          <!-- Botão para concluir agendamento -->
           <q-btn icon="done" @click="concluirAgendamento(agendamento)" />
+          <!-- Botão para abrir diálogo de remarcação -->
           <q-btn icon="event" @click="abrirDialogRemarcar(agendamento)" />
+          <!-- Botão para excluir agendamento -->
           <q-btn icon="delete" @click="excluirAgendamento(agendamento.id)" />
         </q-card-actions>
       </q-card>
     </div>
 
+    <!-- Título para agendamentos concluídos -->
     <div class="agendamento-titulo">Concluídos</div>
     <hr class="linha-separadora" />
 
+    <!-- Lista de agendamentos concluídos -->
     <div class="agendamento-lista">
+      <!-- Itera sobre a lista de agendamentos concluídos -->
       <q-card flat bordered v-for="agendamento in agendamentosConcluidos" :key="agendamento.id" class="agendamento-card q-mb-md">
         <q-card-section>
           <div class="text-h6">{{ getClienteNome(agendamento.clienteId) }}</div>
@@ -35,27 +44,33 @@
       </q-card>
     </div>
 
+    <!-- Botão para abrir diálogo de novo agendamento -->
     <q-btn color="primary" label="Novo Agendamento" @click="mostrarDialogNovoAgendamento = true" />
 
-    <!-- Diálogo para Remarcação de Agendamento -->
+    <!-- Diálogo para remarcação de agendamento -->
     <q-dialog v-model="mostrarDialogRemarcar" persistent>
       <q-card>
         <q-card-section>
+          <!-- Seleção de nova data -->
           <q-date v-model="novaDataSelecionada" label="Nova Data" dense />
+          <!-- Seleção de nova hora -->
           <q-time v-model="novaHoraSelecionada" label="Nova Hora" format="24hr" dense />
         </q-card-section>
 
         <q-card-actions align="right">
+          <!-- Botão para cancelar remarcação -->
           <q-btn label="Cancelar" color="secondary" @click="cancelarRemarcacao" />
+          <!-- Botão para confirmar remarcação -->
           <q-btn label="Remarcar" color="primary" @click="remarcarAgendamento" />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <!-- Diálogo para Novo Agendamento -->
+    <!-- Diálogo para novo agendamento -->
     <q-dialog v-model="mostrarDialogNovoAgendamento" persistent>
       <q-card>
         <q-card-section>
+          <!-- Seleção de cliente -->
           <q-select
             v-model="clienteSelecionado"
             :options="clientes"
@@ -66,12 +81,16 @@
             emit-value
             map-options
           />
+          <!-- Seleção de data -->
           <q-date v-model="dataSelecionada" label="Data" dense />
+          <!-- Seleção de hora -->
           <q-time v-model="horaSelecionada" label="Hora" format="24hr" dense />
         </q-card-section>
 
         <q-card-actions align="right">
+          <!-- Botão para cancelar novo agendamento -->
           <q-btn label="Cancelar" color="secondary" @click="cancelarNovoAgendamento" />
+          <!-- Botão para confirmar novo agendamento -->
           <q-btn label="Adicionar" color="primary" @click="adicionarAgendamento" />
         </q-card-actions>
       </q-card>
@@ -93,6 +112,7 @@ import {
   QTime,
 } from 'quasar';
 
+// Define interfaces para agendamento e cliente
 interface Agendamento {
   id: number;
   clienteId: number;
@@ -136,6 +156,7 @@ export default defineComponent({
 
     const apiBaseUrl = 'http://localhost:3000';
 
+    // Função para buscar agendamentos do servidor
     const fetchAgendamentos = async () => {
       try {
         const response = await axios.get(`${apiBaseUrl}/agendamentos`);
@@ -147,6 +168,7 @@ export default defineComponent({
       }
     };
 
+    // Função para buscar clientes do servidor
     const fetchClientes = async () => {
       try {
         const response = await axios.get(`${apiBaseUrl}/clientes`);
@@ -156,14 +178,17 @@ export default defineComponent({
       }
     };
 
+    // Chama as funções de busca ao montar o componente
     onMounted(() => {
       fetchAgendamentos();
       fetchClientes();
     });
 
+    // Função para adicionar um novo agendamento
     const adicionarAgendamento = async () => {
       if (clienteSelecionado.value && dataSelecionada.value && horaSelecionada.value) {
         try {
+          console.log(clienteSelecionado.value)
           const response = await axios.post(`${apiBaseUrl}/agendamentos`, {
             clienteId: clienteSelecionado.value,
             data: dataSelecionada.value,
@@ -178,6 +203,7 @@ export default defineComponent({
       }
     };
 
+    // Função para cancelar o diálogo de novo agendamento
     const cancelarNovoAgendamento = () => {
       mostrarDialogNovoAgendamento.value = false;
       clienteSelecionado.value = null;
@@ -185,6 +211,7 @@ export default defineComponent({
       horaSelecionada.value = null;
     };
 
+    // Função para abrir o diálogo de remarcação de agendamento
     const abrirDialogRemarcar = (agendamento: Agendamento) => {
       agendamentoParaRemarcar = agendamento;
       novaDataSelecionada.value = agendamento.data;
@@ -192,6 +219,7 @@ export default defineComponent({
       mostrarDialogRemarcar.value = true;
     };
 
+    // Função para cancelar a remarcação
     const cancelarRemarcacao = () => {
       mostrarDialogRemarcar.value = false;
       novaDataSelecionada.value = null;
@@ -199,6 +227,7 @@ export default defineComponent({
       agendamentoParaRemarcar = null;
     };
 
+    // Função para remarcar um agendamento
     const remarcarAgendamento = async () => {
       if (novaDataSelecionada.value && novaHoraSelecionada.value && agendamentoParaRemarcar) {
         try {
@@ -217,30 +246,36 @@ export default defineComponent({
       }
     };
 
+    // Função para concluir um agendamento
     const concluirAgendamento = async (agendamento: Agendamento) => {
       try {
-        await axios.put(`${apiBaseUrl}/agendamentos/${agendamento.id}`, { concluido: true });
+        await axios.put(`${apiBaseUrl}/agendamentos/${agendamento.id}`, {
+          concluido: true,
+        });
         agendamento.concluido = true;
-        agendamentosPendentes.value = agendamentosPendentes.value.filter(a => a.id !== agendamento.id);
+        agendamentosPendentes.value = agendamentosPendentes.value.filter((a: Agendamento) => a.id !== agendamento.id);
         agendamentosConcluidos.value.push(agendamento);
       } catch (error) {
         console.error('Erro ao concluir agendamento:', error);
       }
     };
 
+    // Função para excluir um agendamento
     const excluirAgendamento = async (agendamentoId: number) => {
       try {
         await axios.delete(`${apiBaseUrl}/agendamentos/${agendamentoId}`);
-        agendamentosPendentes.value = agendamentosPendentes.value.filter(a => a.id !== agendamentoId);
-        agendamentosConcluidos.value = agendamentosConcluidos.value.filter(a => a.id !== agendamentoId);
+        agendamentos.value = agendamentos.value.filter((a: Agendamento) => a.id !== agendamentoId);
+        agendamentosPendentes.value = agendamentosPendentes.value.filter((a: Agendamento) => a.id !== agendamentoId);
+        agendamentosConcluidos.value = agendamentosConcluidos.value.filter((a: Agendamento) => a.id !== agendamentoId);
       } catch (error) {
         console.error('Erro ao excluir agendamento:', error);
       }
     };
 
+    // Função para obter o nome do cliente pelo ID
     const getClienteNome = (clienteId: number) => {
-      const cliente = clientes.value.find(c => c.id === clienteId);
-      return cliente ? cliente.nome : 'Desconhecido';
+      const cliente = clientes.value.find((c: Cliente) => c.id === clienteId);
+      return cliente ? cliente.nome : 'Cliente desconhecido';
     };
 
     return {
@@ -270,28 +305,26 @@ export default defineComponent({
 
 <style scoped>
 .agendamento-titulo {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.5em;
+  margin-bottom: 0.5em;
 }
 
 .linha-separadora {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.agendamento-lista {
-  margin-bottom: 1rem;
+  margin-bottom: 1em;
 }
 
 .agendamento-card {
-  width: 100%;
+  padding: 1em;
 }
 
 .remarcado-tag {
-  background-color: #ffcc80;
-  color: #333;
-  padding: 0.25rem 0.5rem;
+  background-color: #ffeb3b;
+  padding: 0.2em 0.5em;
   border-radius: 4px;
-  font-weight: bold;
+  color: #000;
+}
+
+.q-mb-md {
+  margin-bottom: 1em;
 }
 </style>
