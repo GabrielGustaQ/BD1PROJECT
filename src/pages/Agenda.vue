@@ -186,22 +186,27 @@ export default defineComponent({
 
     // Função para adicionar um novo agendamento
     const adicionarAgendamento = async () => {
-      if (clienteSelecionado.value && dataSelecionada.value && horaSelecionada.value) {
-        try {
-          console.log(clienteSelecionado.value)
-          const response = await axios.post(`${apiBaseUrl}/agendamentos`, {
-            clienteId: clienteSelecionado.value,
-            data: dataSelecionada.value,
-            hora: horaSelecionada.value,
-          });
-          agendamentos.value.push(response.data);
-          agendamentosPendentes.value.push(response.data);
-          cancelarNovoAgendamento();
-        } catch (error) {
-          console.error('Erro ao adicionar agendamento:', error);
-        }
-      }
-    };
+  if (clienteSelecionado.value && dataSelecionada.value && horaSelecionada.value) {
+    try {
+      console.log('Cliente Selecionado:', clienteSelecionado);
+      console.log('Data Selecionada:', dataSelecionada.value);
+      console.log('Hora Selecionada:', horaSelecionada.value);
+      
+      const response = await axios.post(`${apiBaseUrl}/agendamentos`, {
+        cliente_id: clienteSelecionado.value, // Certifique-se de que este valor está correto
+        data: dataSelecionada.value,
+        hora: horaSelecionada.value,
+        servico_id: null // Defina o valor apropriado para servico_id se necessário
+      });
+      agendamentos.value.push(response.data);
+      agendamentosPendentes.value.push(response.data);
+      cancelarNovoAgendamento();
+    } catch (error) {
+      console.error('Erro ao adicionar agendamento:', error);
+    }
+  }
+};
+
 
     // Função para cancelar o diálogo de novo agendamento
     const cancelarNovoAgendamento = () => {
