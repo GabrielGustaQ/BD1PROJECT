@@ -28,6 +28,10 @@ const routes: RouteRecordRaw[] = [
     path: '/AdminPage',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('src/pages/AdministradorTeste.vue') }],
+  },{
+    path: '/UserPage',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('src/pages/User.vue') }],
   },
 ];
 

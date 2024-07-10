@@ -2,29 +2,46 @@
   <q-page class="admin-page">
     <div class="header">
       <div class="title">Administradores</div>
-      <q-btn label="Adicionar Usuário" color="primary" @click="addUser" />
+      <q-btn label="Adicionar Usuário" color="primary" @click="showAddUserDialog = true" />
     </div>
     <q-input filled v-model="search" label="Pesquisar usuário" class="search-input" />
-    <q-table :rows="admins" :columns="columns" row-key="id" class="admin-table">
+    <q-table :rows="filteredAdmins" :columns="columns" row-key="id" class="admin-table">
       <template v-slot:body-cell-actions="props">
         <q-td>
-          <q-btn icon="edit" @click="editUser(props.row.id)" />
           <q-btn icon="delete" color="negative" @click="deleteUser(props.row.id)" />
         </q-td>
       </template>
     </q-table>
+
+    <q-dialog v-model="showAddUserDialog">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Adicionar Novo Usuário</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input v-model="newUser.email" label="Email" />
+          <q-input v-model="newUser.password" label="Senha" type="password" />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" v-close-popup />
+          <q-btn flat label="Adicionar" @click="addUser" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { QPage, QBtn, QInput, QTable, QTd } from 'quasar';
+import { defineComponent, ref, onMounted, computed } from 'vue';
+import { QPage, QBtn, QInput, QTable, QTd, QDialog, QCard, QCardSection, QCardActions } from 'quasar';
+import axios from 'axios';
 
 interface Admin {
   id: number;
-  name: string;
   email: string;
-  status: string;
+  password: string;
 }
 
 interface Column {
@@ -40,39 +57,60 @@ interface Column {
 
 export default defineComponent({
   name: 'AdminPage',
-  components: { QPage, QBtn, QInput, QTable, QTd },
+  components: { QPage, QBtn, QInput, QTable, QTd, QDialog, QCard, QCardSection, QCardActions },
   setup() {
     const search = ref('');
-    const admins = ref<Admin[]>([
-      { id: 1, name: 'Usuario Admin 1', email: 'admin1@mail.com', status: 'Ativo' },
-      { id: 2, name: 'Usuario Admin 2', email: 'admin2@mail.com', status: 'Ativo' },
-      { id: 3, name: 'Usuario Admin 3', email: 'admin3@mail.com', status: 'Inativo' },
-      { id: 4, name: 'Usuario Admin 4', email: 'admin4@mail.com', status: 'Ativo' },
-    ]);
+    const admins = ref<Admin[]>([]);
+    const showAddUserDialog = ref(false);
+    const newUser = ref<Admin>({ id: 0, email: '', password: '' });
 
     const columns: Column[] = [
       { name: 'id', label: 'Id', align: 'left', field: 'id' },
-      { name: 'name', label: 'Nome Completo', align: 'left', field: 'name' },
       { name: 'email', label: 'Email', align: 'left', field: 'email' },
-      { name: 'status', label: 'Situação', align: 'left', field: 'status' },
       { name: 'actions', label: 'Ações', align: 'center', field: '' },
     ];
 
-    const addUser = () => {
-      // Implementar lógica para adicionar usuário
+    const filteredAdmins = computed(() => {
+      if (!search.value) {
+        return admins.value;
+      }
+      return admins.value.filter(admin =>
+        admin.email.toLowerCase().includes(search.value.toLowerCase())
+      );
+    });
+
+    const fetchAdmins = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/usuarios');
+        admins.value = response.data;
+      } catch (error) {
+        console.error('Erro ao buscar administradores:', error);
+      }
     };
 
-    const editUser = (id: number) => {
-      // Implementar lógica para editar usuário
-      console.log(id)
+    const addUser = async () => {
+      try {
+        const response = await axios.post('http://localhost:3000/usuarios', newUser.value);
+        admins.value.push(response.data);
+        showAddUserDialog.value = false;
+        newUser.value = { id: 0, email: '', password: '' };
+      } catch (error) {
+        console.error('Erro ao adicionar usuário:', error);
+      }
     };
 
-    const deleteUser = (id: number) => {
-      // Implementar lógica para deletar usuário
-      admins.value = admins.value.filter(admin => admin.id !== id);
+    const deleteUser = async (id: number) => {
+      try {
+        await axios.delete(`http://localhost:3000/usuarios/${id}`);
+        admins.value = admins.value.filter(admin => admin.id !== id);
+      } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+      }
     };
 
-    return { search, admins, columns, addUser, editUser, deleteUser };
+    onMounted(fetchAdmins);
+
+    return { search, admins, columns, addUser, deleteUser, showAddUserDialog, newUser, filteredAdmins };
   },
 });
 </script>
