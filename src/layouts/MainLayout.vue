@@ -73,7 +73,7 @@ const linksList: EssentialLinkProps[] = [
   {
     title: 'Funcionários',
     icon: 'supervised_user_circle',
-    link: '/UserPage'
+    link: '/FuncionarioPage'
   },
   {
     title: 'Agendamentos',

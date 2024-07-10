@@ -1,162 +1,176 @@
 <template>
-  <q-page padding>
-    <!-- Botão para Adicionar Nova Promoção -->
-    <q-btn color="primary" label="Adicionar Promoção" @click="mostrarDialogNovaPromocao = true" />
+  <q-page class="servicos-page">
+    <div class="header">
+      <div class="title">Serviços</div>
+      <q-btn label="Adicionar Serviço" color="primary" @click="showAddServicoDialog = true" />
+    </div>
+    <q-input filled v-model="search" label="Pesquisar serviço" class="search-input" />
+    <q-table :rows="filteredServicos" :columns="columns" row-key="id" class="servico-table">
+      <template v-slot:body-cell-acoes="props">
+        <q-td>
+          <q-btn icon="delete" color="negative" @click="deleteServico(props.row.id)" />
+        </q-td>
+      </template>
+    </q-table>
 
-    <!-- Diálogo para Nova Promoção -->
-    <q-dialog v-model="mostrarDialogNovaPromocao" persistent>
+    <q-dialog v-model="showAddServicoDialog">
       <q-card>
         <q-card-section>
-          <q-input v-model="novaPromocao.nome" label="Nome da Promoção" dense />
-          <q-input v-model="novaPromocao.descricao" label="Descrição" dense />
-          
-          <!-- Dropdown para Selecionar Cliente -->
-          <q-select
-            v-model="novaPromocao.clienteId"
-            :options="clientes.map(cliente => ({ label: cliente.nome, value: cliente.id }))"
-            label="Cliente"
-            dense
-          />
+          <div class="text-h6">Adicionar Novo Serviço</div>
         </q-card-section>
-        
+
+        <q-card-section>
+          <q-input v-model="newServico.tipo" label="Tipo de Serviço" />
+          <q-input v-model="newServico.valor_servico" label="Valor do Serviço" type="number" />
+          <q-input v-model="newServico.quantidade" label="Quantidade" type="number" />
+          <q-input v-model="newServico.duracao" label="Duração" />
+          <q-input v-model="newServico.funcionario_id" label="ID do Funcionário" type="number" />
+        </q-card-section>
+
         <q-card-actions align="right">
-          <q-btn label="Cancelar" color="secondary" @click="cancelarNovaPromocao" />
-          <q-btn label="Adicionar" color="primary" @click="adicionarNovaPromocao" />
+          <q-btn flat label="Cancelar" v-close-popup />
+          <q-btn flat label="Adicionar" @click="addServico" />
         </q-card-actions>
       </q-card>
     </q-dialog>
-
-    <!-- Grid de Promoções -->
-    <q-card flat bordered v-for="promocao in promocoes" :key="promocao.id" class="q-mb-md">
-      <q-card-section>
-        <q-item>
-          <q-item-section>
-            <q-item-label>{{ promocao.nome }}</q-item-label>
-            <q-item-label caption>{{ promocao.descricao }}</q-item-label>
-            <q-item-label caption>{{ getClienteNome(promocao.clienteId) }}</q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-btn-group>
-              <q-btn icon="done" @click="concluirPromocao(promocao.id)" />
-              <q-btn icon="event" @click="remarcarPromocao(promocao.id)" />
-              <q-btn icon="delete" @click="excluirPromocao(promocao.id)" />
-            </q-btn-group>
-          </q-item-section>
-        </q-item>
-      </q-card-section>
-    </q-card>
   </q-page>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
-import { QBtn, QDialog, QCard, QCardSection, QCardActions, QInput, QSelect, QItem, QItemSection, QItemLabel, QBtnGroup } from 'quasar';
+import { defineComponent, ref, computed } from 'vue';
+import axios from 'axios';
+import { QPage, QBtn, QInput, QTable, QTd, QDialog, QCard, QCardSection, QCardActions } from 'quasar';
 
-interface Cliente {
+interface Servico {
   id: number;
-  nome: string;
+  tipo: string;
+  valor_servico: number;
+  quantidade: number;
+  duracao: string;
+  funcionario_id: number;
 }
 
-interface Promocao {
-  id: number;
-  nome: string;
-  descricao: string;
-  clienteId: number;
+interface Column {
+  name: string;
+  label: string;
+  field: string | ((row: Servico) => string);
+  align: 'left' | 'right' | 'center';
 }
 
 export default defineComponent({
-  name: 'PromocoesPage',
-  components: {
-    QBtn,
-    QDialog,
-    QCard,
-    QCardSection,
-    QCardActions,
-    QInput,
-    QSelect,
-    QItem,
-    QItemSection,
-    QItemLabel,
-    QBtnGroup,
-  },
+  name: 'ServicosPage',
+  components: { QPage, QBtn, QInput, QTable, QTd, QDialog, QCard, QCardSection, QCardActions },
   setup() {
-    const promocoes = ref<Promocao[]>([
-      { id: 1, nome: 'Promoção A', descricao: 'Descrição da Promoção A', clienteId: 1 },
-      { id: 2, nome: 'Promoção B', descricao: 'Descrição da Promoção B', clienteId: 2 },
-      { id: 3, nome: 'Promoção C', descricao: 'Descrição da Promoção C', clienteId: 3 },
-    ]);
+    const search = ref('');
+    const showAddServicoDialog = ref(false);
+    const newServico = ref<Servico>({
+      id: 0,
+      tipo: '',
+      valor_servico: 0,
+      quantidade: 0,
+      duracao: '',
+      funcionario_id: 0,
+    });
 
-    const clientes = ref<Cliente[]>([
-      { id: 1, nome: 'Cliente A' },
-      { id: 2, nome: 'Cliente B' },
-      { id: 3, nome: 'Cliente C' },
-    ]);
+    const columns: Column[] = [
+      { name: 'id', label: 'ID', field: 'id', align: 'left' },
+      { name: 'tipo', label: 'Tipo de Serviço', field: 'tipo', align: 'left' },
+      { name: 'valor_servico', label: 'Valor do Serviço', field: 'valor_servico', align: 'left' },
+      { name: 'quantidade', label: 'Quantidade', field: 'quantidade', align: 'left' },
+      { name: 'duracao', label: 'Duração', field: 'duracao', align: 'left' },
+      { name: 'funcionario_id', label: 'ID do Funcionário', field: 'funcionario_id', align: 'left' },
+      { name: 'acoes', label: 'Ações', align: 'center', field: '' },
+    ];
 
-    const mostrarDialogNovaPromocao = ref(false);
-    const novaPromocao = ref<Promocao>({ id: 0, nome: '', descricao: '', clienteId: 0 });
+    const servicos = ref<Servico[]>([]);
 
-    const adicionarNovaPromocao = () => {
-      if (novaPromocao.value.nome && novaPromocao.value.descricao && novaPromocao.value.clienteId !== 0) {
-        promocoes.value.push({
-          id: promocoes.value.length + 1,
-          nome: novaPromocao.value.nome,
-          descricao: novaPromocao.value.descricao,
-          clienteId: novaPromocao.value.clienteId,
-        });
-        cancelarNovaPromocao();
+    const fetchServicos = async () => {
+      try {
+        const response = await axios.get<Servico[]>('http://localhost:3000/servicos');
+        servicos.value = response.data;
+      } catch (error) {
+        console.error('Erro ao buscar serviços:', error);
       }
     };
 
-    const cancelarNovaPromocao = () => {
-      mostrarDialogNovaPromocao.value = false;
-      novaPromocao.value = { id: 0, nome: '', descricao: '', clienteId: 0 };
-    };
-
-    const getClienteNome = (clienteId: number) => {
-      const cliente = clientes.value.find(c => c.id === clienteId);
-      return cliente ? cliente.nome : '';
-    };
-
-    const concluirPromocao = (promocaoId: number) => {
-      const index = promocoes.value.findIndex(p => p.id === promocaoId);
-      if (index !== -1) {
-        // Simulação: Marcar promoção como concluída
-        promocoes.value[index].nome += ' (Concluída)';
+    const addServico = async () => {
+      try {
+        const response = await axios.post<Servico>('http://localhost:3000/servicos', newServico.value);
+        servicos.value.push(response.data);
+        showAddServicoDialog.value = false;
+        resetNewServico();
+      } catch (error) {
+        console.error('Erro ao adicionar serviço:', error);
       }
     };
 
-    const remarcarPromocao = (promocaoId: number) => {
-      const index = promocoes.value.findIndex(p => p.id === promocaoId);
-      if (index !== -1) {
-        // Simulação: Remarcar promoção
-        promocoes.value[index].nome += ' (Remarcada)';
+    const deleteServico = async (id: number) => {
+      try {
+        await axios.delete(`http://localhost:3000/servicos/${id}`);
+        servicos.value = servicos.value.filter(servico => servico.id !== id);
+      } catch (error) {
+        console.error('Erro ao excluir serviço:', error);
       }
     };
 
-    const excluirPromocao = (promocaoId: number) => {
-      // Simulação: Excluir promoção
-      promocoes.value = promocoes.value.filter(p => p.id !== promocaoId);
+    const filteredServicos = computed(() => {
+      if (!search.value) {
+        return servicos.value;
+      }
+      const lowerCaseSearch = search.value.toLowerCase();
+      return servicos.value.filter(servico =>
+        servico.tipo.toLowerCase().includes(lowerCaseSearch) ||
+        servico.duracao.toLowerCase().includes(lowerCaseSearch)
+      );
+    });
+
+    const resetNewServico = () => {
+      newServico.value = {
+        id: 0,
+        tipo: '',
+        valor_servico: 0,
+        quantidade: 0,
+        duracao: '',
+        funcionario_id: 0,
+      };
     };
+
+    fetchServicos();
 
     return {
-      promocoes,
-      clientes,
-      mostrarDialogNovaPromocao,
-      novaPromocao,
-      adicionarNovaPromocao,
-      cancelarNovaPromocao,
-      getClienteNome,
-      concluirPromocao,
-      remarcarPromocao,
-      excluirPromocao,
+      search,
+      showAddServicoDialog,
+      newServico,
+      columns,
+      filteredServicos,
+      addServico,
+      deleteServico,
     };
   },
 });
 </script>
 
 <style scoped>
-.q-card {
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.servicos-page {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 1.5rem;
+}
+
+.search-input {
+  margin-bottom: 20px;
+}
+
+.q-btn {
+  margin-right: 10px;
 }
 </style>

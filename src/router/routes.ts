@@ -32,6 +32,10 @@ const routes: RouteRecordRaw[] = [
     path: '/UserPage',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('src/pages/User.vue') }],
+  },{
+    path: '/FuncionarioPage',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [{ path: '', component: () => import('src/pages/Funcionario.vue') }],
   },
 ];
 
